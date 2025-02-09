@@ -110,3 +110,15 @@ func (a *GRPC) GetReviewsByID(ctx context.Context, req *pb.GetByIDRequest) (res 
 		Star:     uint32(resRepo.Star),
 	}, nil
 }
+
+func (a *GRPC) DeleteUser(ctx context.Context, req *pb.GetByIDRequest) (res *pb.User, err error) {
+	resRepo, err := a.repo.DeleteUser(ctx, req.Id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.User{
+		Id: resRepo.ID,
+	}, nil
+}

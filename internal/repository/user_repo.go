@@ -10,6 +10,7 @@ import (
 
 type UserRepo interface {
 	CreateUser(c context.Context, user model.UserDetails) (model.UserDetails, error)
+	DeleteUser(c context.Context, id string) (model.UserDetails, error)
 	GetUserDetails(c context.Context, id string) (model.UserDetails, error)
 	GetAllUsers(c context.Context) ([]model.UserDetails, error)
 	GetAllReviews(c context.Context) ([]model.Review, error)
@@ -19,6 +20,14 @@ type UserRepo interface {
 
 type UserRepoImpl struct {
 	db *gorm.DB
+}
+
+func (a *UserRepoImpl) DeleteUser(c context.Context, id string) (res model.UserDetails, err error) {
+	if err := a.db.WithContext(c).Delete(&res, "id = ?", id).Error; err != nil {
+		return res, helper.ErrDatabase
+	}
+
+	return res, nil
 }
 
 func (a *UserRepoImpl) GetAllReviews(c context.Context) (res []model.Review, err error) {
