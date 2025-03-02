@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"net/http"
@@ -55,7 +56,15 @@ func (a *UserControllerImpl) Order(c *fiber.Ctx) error {
 		"lng":     data.Lng,
 	}
 
-	if err := conn.WriteJSON(location); err != nil {
+	locationJSON, err := json.Marshal(location)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status": "error",
+			"errors": "Failed to marshal location to JSON",
+		})
+	}
+
+	if err := conn.WriteMessage(websocket.TextMessage, locationJSON); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status": "error",
 			"errors": "Failed to send location",
