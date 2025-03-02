@@ -25,17 +25,10 @@ type UserControllerImpl struct {
 
 func (a *UserControllerImpl) Order(c *fiber.Ctx) error {
 	token := c.Get("Authorization")
-	payload, err := middleware.GetJWTPayload(token[7:], os.Getenv("JWT_SECRET"))
-
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"status": "error",
-			"errors": "Unauthorized",
-		})
-	}
+	payload, _ := middleware.GetJWTPayload(token[7:], os.Getenv("JWT_SECRET"))
 
 	var data dto.MessageLoc
-	if err = c.BodyParser(&data); err != nil {
+	if err := c.BodyParser(&data); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"status": "error",
 			"errors": err.Error(),
@@ -45,7 +38,7 @@ func (a *UserControllerImpl) Order(c *fiber.Ctx) error {
 	headers := http.Header{}
 	headers.Add("Authorization", token)
 
-	conn, _, err := websocket.DefaultDialer.Dial(fmt.Sprintf("ws://%s:8040/ws/location", os.Getenv("GEOLOCATION_HOST")), headers)
+	conn, _, err := websocket.DefaultDialer.Dial(fmt.Sprintf("ws://%s/tracking/ws/location", os.Getenv("BASE_URL")), headers)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status": "error",
