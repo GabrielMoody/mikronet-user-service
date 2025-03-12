@@ -19,4 +19,9 @@ type (
 		Comment string `json:"comment"`
 		Star    int    `json:"star" validate:"required"`
 	}
+
+	Transaction struct {
+		DriverId string `json:"driver_id"`
+		Amount   int    `json:"amount"`
+	}
 )

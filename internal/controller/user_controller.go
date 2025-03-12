@@ -18,15 +18,45 @@ type UserController interface {
 	GetUser(c *fiber.Ctx) error
 	Order(c *fiber.Ctx) error
 	ReviewOrder(c *fiber.Ctx) error
+	Transaction(c *fiber.Ctx) error
 }
 
 type UserControllerImpl struct {
 	service service.UserService
 }
 
+func (a *UserControllerImpl) Transaction(c *fiber.Ctx) error {
+	ctx := c.Context()
+	token := c.Get("Authorization")
+	payload, _ := middleware.GetJWTPayload(token, os.Getenv("JWT_SECRET"))
+
+	var data dto.Transaction
+
+	if err := c.BodyParser(&data); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"status": "Error",
+			"errors": err.Error(),
+		})
+	}
+
+	res, err := a.service.Transaction(ctx, data, payload["id"].(string))
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status": "Error",
+			"errors": err,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status": "Success",
+		"data":   res,
+	})
+}
+
 func (a *UserControllerImpl) Order(c *fiber.Ctx) error {
 	token := c.Get("Authorization")
-	payload, _ := middleware.GetJWTPayload(token[7:], os.Getenv("JWT_SECRET"))
+	payload, _ := middleware.GetJWTPayload(token, os.Getenv("JWT_SECRET"))
 
 	var data dto.MessageLoc
 	if err := c.BodyParser(&data); err != nil {
@@ -101,9 +131,14 @@ func (a *UserControllerImpl) GetUser(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status": "success",
-		"data":   res,
+		"data": fiber.Map{
+			"id":    res.ID,
+			"email": res.Email,
+			"name":  res.Name,
+		},
 	})
 }
+
 func (a *UserControllerImpl) ReviewOrder(c *fiber.Ctx) error {
 	ctx := c.Context()
 	driverId := c.Params("driverId")
