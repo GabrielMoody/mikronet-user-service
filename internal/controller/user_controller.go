@@ -39,7 +39,7 @@ func (a *UserControllerImpl) Transaction(c *fiber.Ctx) error {
 		})
 	}
 
-	res, err := a.service.Transaction(ctx, data, payload["id"].(string))
+	_, err := a.service.Transaction(ctx, data, payload["id"].(string))
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -50,7 +50,7 @@ func (a *UserControllerImpl) Transaction(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status": "Success",
-		"data":   res,
+		"data":   "Berhasil melakukan transaksi",
 	})
 }
 

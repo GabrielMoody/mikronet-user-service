@@ -13,14 +13,14 @@ import (
 type UserService interface {
 	GetUserDetails(c context.Context, id string) (res model.Users, err *helper.ErrorStruct)
 	ReviewOrder(c context.Context, data dto.ReviewReq, userId string, driverId string) (res interface{}, err *helper.ErrorStruct)
-	Transaction(c context.Context, data dto.Transaction, passenger_id string) (res interface{}, err *helper.ErrorStruct)
+	Transaction(c context.Context, data dto.Transaction, passenger_id string) (res model.Transaction, err *helper.ErrorStruct)
 }
 
 type userServiceImpl struct {
 	repo repository.UserRepo
 }
 
-func (a *userServiceImpl) Transaction(c context.Context, data dto.Transaction, passenger_id string) (res interface{}, err *helper.ErrorStruct) {
+func (a *userServiceImpl) Transaction(c context.Context, data dto.Transaction, passenger_id string) (res model.Transaction, err *helper.ErrorStruct) {
 	if err := helper.Validate.Struct(data); err != nil {
 		return res, &helper.ErrorStruct{
 			Code: http.StatusBadRequest,
