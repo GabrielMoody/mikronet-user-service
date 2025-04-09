@@ -37,8 +37,8 @@ func (a *UserRepoImpl) DeleteUser(c context.Context, id string) (res model.Passe
 
 func (a *UserRepoImpl) GetUserDetails(c context.Context, id string) (res model.Users, err error) {
 	if err := a.db.WithContext(c).Table("users").
-		Joins("JOIN passengers ON passengers.id = users.id").
-		Select("users.id, users.email, passengers.name").
+		Joins("JOIN passenger_details p ON p.id = users.id").
+		Select("users.id, users.email, p.name").
 		Scan(&res).
 		Error; err != nil {
 		return res, helper.ErrNotFound
